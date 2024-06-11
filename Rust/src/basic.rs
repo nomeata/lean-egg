@@ -1,14 +1,5 @@
-use std::time::Duration;
-use std::collections::HashMap;
-use egg::*;
-use crate::result::*;
-use crate::analysis::*;
-use crate::beta::*;
-use crate::eta::*;
-use crate::levels::*;
-use crate::nat_lit::*;
-use crate::rewrite::*;
-use crate::trace::*;
+use miniegg_with_slots::*;
+use crate::lean_expr::*;
 
 #[repr(C)]
 pub struct Config {
@@ -27,41 +18,24 @@ pub struct Config {
     trace_bvar_correction:  bool,
 }
 
-pub fn explain_congr(init: String, goal: String, rw_templates: Vec<RewriteTemplate>, facts: Vec<(String, String)>, guides: Vec<String>, cfg: Config, viz_path: Option<String>) -> Res<(String, LeanEGraph)> {
-    init_enabled_trace_groups(cfg.trace_substitutions, cfg.trace_bvar_correction);
+pub struct RewriteTemplate {
+    pub name:  String,
+    pub lhs:   Pattern<LeanExpr>,
+    pub rhs:   Pattern<LeanExpr>,
+}
 
-    let mut egraph: LeanEGraph = Default::default();
-    egraph = egraph.with_explanations_enabled();
-    if !cfg.optimize_expl { egraph = egraph.without_explanation_length_optimization() }
+pub fn explain_congr(init: String, goal: String, rw_templates: Vec<RewriteTemplate>, cfg: Config, viz_path: Option<String>) -> (String, EGraph<LeanExpr>) {
+    let mut egraph: EGraph<LeanExpr> = EGraph::new();
 
-    let init_expr = init.parse().map_err(|e : RecExprParseError<_>| Error::Init(e.to_string()))?;
-    let goal_expr = goal.parse().map_err(|e : RecExprParseError<_>| Error::Goal(e.to_string()))?;
-    let init_id = egraph.add_expr(&init_expr);
-    let goal_id = egraph.add_expr(&goal_expr);
+    let init_expr: RecExpr<LeanExpr> = todo!(); // init.parse();
+    let goal_expr: RecExpr<LeanExpr> = todo!(); // goal.parse();
+    let init_id = egraph.add_expr(init_expr);
+    let goal_id = egraph.add_expr(goal_expr);
 
-    for guide in guides {
-        let expr = guide.parse().map_err(|e : RecExprParseError<_>| Error::Guide(e.to_string()))?;
-        egraph.add_expr(&expr);
-    }
+    let mut rws: Vec<Rewrite<LeanExpr>> = todo!();
+    // TODO: From templates
 
-    let mut fact_map: HashMap<Id, String> = Default::default();
-    for (name, expr) in facts {
-        let expr = expr.parse().map_err(|e : RecExprParseError<_>| Error::Fact(e.to_string()))?;
-        let class = egraph.add_expr(&expr);
-        fact_map.insert(class, name);
-    }
-
-    let mut rws;
-    match templates_to_rewrites(rw_templates, fact_map, cfg.block_invalid_matches, cfg.shift_captured_bvars, cfg.allow_unsat_conditions) {
-        Ok(r)    => rws = r,
-        Err(err) => return Err(Error::Rewrite(err.to_string()))
-    }
-    if cfg.gen_nat_lit_rws { rws.append(&mut nat_lit_rws()) }
-    if cfg.gen_eta_rw      { rws.push(eta_reduction_rw()) }
-    if cfg.gen_beta_rw     { rws.push(beta_reduction_rw()) }
-    if cfg.gen_level_rws   { rws.append(&mut level_rws()) }
-
-    let mut runner = Runner::default()
+    /*let mut runner = Runner::default()
         .with_egraph(egraph)
         .with_time_limit(Duration::from_secs(cfg.time_limit.try_into().unwrap()))
         .with_node_limit(cfg.node_limit)
@@ -85,4 +59,5 @@ pub fn explain_congr(init: String, goal: String, rw_templates: Vec<RewriteTempla
     } else {
         Err(Error::Stopped(runner.stop_reason.unwrap()))
     }
+    */
 }

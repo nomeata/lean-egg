@@ -6,9 +6,6 @@ open Lean
 
 namespace Egg
 
-private def Expression.erased : Expression :=
-  "_"
-
 -- Note: The encoding of expression mvars and universe level mvars in rewrites relies on the fact
 --       that their indices are also unique between eachother.
 
@@ -55,8 +52,8 @@ where
     | _                 => panic! "'Egg.encode.core' received non-normalized expression"
 
   encodeFVar (id : FVarId) : EncodeM Expression := do
-    if let some bvarIdx ← bvarIdx? id
-    then return s!"(bvar {bvarIdx})"
+    if ← representsBVar id
+    then return s!"(bvar {id.name.toString})"
     else return s!"(fvar {id.uniqueIdx!})"
 
   encodeMVar (id : MVarId) : EncodeM Expression := do
@@ -71,10 +68,10 @@ where
     -- It's critical that we encode `ty` outside of the `withInstantiatedBVar` block, as otherwise
     -- the bvars in `encTy` are incorrectly shifted by 1.
     let encTy ← go ty
-    withInstantiatedBVar ty b fun body => return s!"(λ {encTy} {← go body})"
+    withInstantiatedBVar ty b fun var body => return s!"(λ {var} {encTy} {← go body})"
 
   encodeForall (ty b : Expr) : EncodeM Expression := do
     -- It's critical that we encode `ty` outside of the `withInstantiatedBVar` block, as otherwise
     -- the bvars in `encTy` are incorrectly shifted by 1.
     let encTy ← go ty
-    withInstantiatedBVar ty b fun body => return s!"(∀ {encTy} {← go body})"
+    withInstantiatedBVar ty b fun var body => return s!"(∀ {var} {encTy} {← go body})"

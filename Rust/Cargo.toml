@@ -7,6 +7,6 @@ edition = "2021"
 crate-type = ["staticlib"]
 
 [dependencies]
-egg = "0.9.5"
+miniegg-with-slots = { path = "slotted/3-miniegg-with-slots" }
 indexmap = "1.8.1"
 libc = "0.2"
