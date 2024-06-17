@@ -94,4 +94,62 @@ impl Language for LeanExpr {
             _ => vec![],
         }
     }
+    
+    fn to_op(&self) -> (String, Vec<Child>) {
+        match self.clone() {
+            LeanExpr::Nat(_)             => todo!(),
+            LeanExpr::Str(_)             => todo!(),
+            LeanExpr::UVar(c)            => ("uvar".to_string(), vec![Child::AppliedId(c)]),
+            LeanExpr::Param(c)           => ("param".to_string(), vec![Child::AppliedId(c)]),
+            LeanExpr::Succ(c)            => ("succ".to_string(), vec![Child::AppliedId(c)]),
+            LeanExpr::Max(c1, c2)        => ("max".to_string(), vec![Child::AppliedId(c1), Child::AppliedId(c2)]),
+            LeanExpr::IMax(c1, c2)       => ("imax".to_string(), vec![Child::AppliedId(c1), Child::AppliedId(c2)]),
+            LeanExpr::BVar(c)            => ("bvar".to_string(), vec![Child::Slot(c)]), 
+            LeanExpr::FVar(c)            => ("fvar".to_string(), vec![Child::AppliedId(c)]),
+            LeanExpr::MVar(c)            => ("mvar".to_string(), vec![Child::AppliedId(c)]),
+            LeanExpr::Sort(c)            => ("sort".to_string(), vec![Child::AppliedId(c)]),
+            LeanExpr::App(c1, c2)        => ("app".to_string(), vec![Child::AppliedId(c1), Child::AppliedId(c2)]),
+            LeanExpr::Lam(c1, c2, c3)    => ("λ".to_string(), vec![Child::Slot(c1), Child::AppliedId(c2), Child::AppliedId(c3)]),
+            LeanExpr::Forall(c1, c2, c3) => ("∀".to_string(), vec![Child::Slot(c1), Child::AppliedId(c2), Child::AppliedId(c3)]),
+            LeanExpr::Lit(c)             => ("lit".to_string(), vec![Child::AppliedId(c)]),
+            LeanExpr::Proof(c)           => ("proof".to_string(), vec![Child::AppliedId(c)]),
+            LeanExpr::Const(cs)          => {
+                let mut is = Vec::new();
+                for c in cs.iter() { is.push(Child::AppliedId(c.clone())); }
+                ("const".to_string(), is)
+            }
+        }
+    }
+    
+    fn from_op(op: &str, children: Vec<Child>) -> Option<Self> {
+        match (op, &*children) {
+            ("uvar",  [Child::AppliedId(c)])                                         => Some(LeanExpr::UVar(c.clone())),            
+            ("param", [Child::AppliedId(c)])                                         => Some(LeanExpr::Param(c.clone())),           
+            ("succ",  [Child::AppliedId(c)])                                         => Some(LeanExpr::Succ(c.clone())),            
+            ("max",   [Child::AppliedId(c1), Child::AppliedId(c2)])                  => Some(LeanExpr::Max(c1.clone(), c2.clone())),        
+            ("imax",  [Child::AppliedId(c1), Child::AppliedId(c2)])                  => Some(LeanExpr::IMax(c1.clone(), c2.clone())),       
+            ("bvar",  [Child::Slot(c)])                                              => Some(LeanExpr::BVar(*c)),            
+            ("fvar",  [Child::AppliedId(c)])                                         => Some(LeanExpr::FVar(c.clone())),            
+            ("mvar",  [Child::AppliedId(c)])                                         => Some(LeanExpr::MVar(c.clone())),            
+            ("sort",  [Child::AppliedId(c)])                                         => Some(LeanExpr::Sort(c.clone())),            
+            ("app",   [Child::AppliedId(c1), Child::AppliedId(c2)])                  => Some(LeanExpr::App(c1.clone(), c2.clone())),        
+            ("λ",     [Child::Slot(c1), Child::AppliedId(c2), Child::AppliedId(c3)]) => Some(LeanExpr::Lam(*c1, c2.clone(), c3.clone())),    
+            ("∀",     [Child::Slot(c1), Child::AppliedId(c2), Child::AppliedId(c3)]) => Some(LeanExpr::Forall(*c1, c2.clone(), c3.clone())), 
+            ("lit",   [Child::AppliedId(c)])                                         => Some(LeanExpr::Lit(c.clone())),             
+            ("proof", [Child::AppliedId(c)])                                         => Some(LeanExpr::Proof(c.clone())),     
+            ("const", cs) => {
+                let mut is = vec![];
+                for c in cs.iter() {
+                    match c {
+                        Child::Slot(_)      => return None,
+                        Child::AppliedId(i) => { is.push(i.clone()); }
+                    }
+                }
+                Some(LeanExpr::Const(is.into_boxed_slice()))
+            },           
+            // LeanExpr::Nat(_)
+            // LeanExpr::Str(_)
+            _ => None,
+        }
+    }
 }
