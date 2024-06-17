@@ -97,8 +97,8 @@ impl Language for LeanExpr {
     
     fn to_op(&self) -> (String, Vec<Child>) {
         match self.clone() {
-            LeanExpr::Nat(_)             => todo!(),
-            LeanExpr::Str(_)             => todo!(),
+            LeanExpr::Nat(n)             => (format!("#{}", n), vec![]),
+            LeanExpr::Str(s)             => (format!("\"{}\"", s), vec![]),
             LeanExpr::UVar(c)            => ("uvar".to_string(), vec![Child::AppliedId(c)]),
             LeanExpr::Param(c)           => ("param".to_string(), vec![Child::AppliedId(c)]),
             LeanExpr::Succ(c)            => ("succ".to_string(), vec![Child::AppliedId(c)]),
@@ -146,10 +146,19 @@ impl Language for LeanExpr {
                     }
                 }
                 Some(LeanExpr::Const(is.into_boxed_slice()))
-            },           
-            // LeanExpr::Nat(_)
-            // LeanExpr::Str(_)
-            _ => None,
+            },
+            (op, []) => {
+                if op.starts_with("#") {
+                    let n: u64 = op[1..].parse().ok()?;
+                    Some(LeanExpr::Nat(n))
+                } else if op.starts_with("\"") && op.ends_with("\"") {
+                    let s = op.strip_prefix("\"").unwrap().strip_suffix("\"").unwrap().to_string();
+                    Some(LeanExpr::Str(s))
+                } else {
+                    None
+                }
+            },
+            _ => None
         }
     }
 }
