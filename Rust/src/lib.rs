@@ -59,14 +59,14 @@ impl CRewritesArray {
         let mut res: Vec<RewriteTemplate> = vec![];
         
         for rw in rws {
-            let name_c_str    = unsafe { CStr::from_ptr(rw.name) };
-            let lhs_c_str     = unsafe { CStr::from_ptr(rw.lhs) };
-            let rhs_c_str     = unsafe { CStr::from_ptr(rw.rhs) };
-            let name_str      = name_c_str.to_str().unwrap();
-            let lhs_str       = lhs_c_str.to_str().unwrap();
-            let rhs_str       = rhs_c_str.to_str().unwrap();
-            let lhs: Pattern<LeanExpr> = todo!(); // Pattern::from_str(lhs_str).expect("Failed to parse lhs");
-            let rhs: Pattern<LeanExpr> = todo!(); // Pattern::from_str(rhs_str).expect("Failed to parse rhs");
+            let name_c_str = unsafe { CStr::from_ptr(rw.name) };
+            let lhs_c_str  = unsafe { CStr::from_ptr(rw.lhs) };
+            let rhs_c_str  = unsafe { CStr::from_ptr(rw.rhs) };
+            let name_str   = name_c_str.to_str().unwrap();
+            let lhs_str    = lhs_c_str.to_str().unwrap();
+            let rhs_str    = rhs_c_str.to_str().unwrap();
+            let lhs        = Pattern::parse(lhs_str).unwrap();
+            let rhs        = Pattern::parse(rhs_str).unwrap();
             
             if rw.dirs == RewriteDirections::Forward || rw.dirs == RewriteDirections::Both {
                 res.push(RewriteTemplate { name: name_str.to_string(), lhs: lhs.clone(), rhs: rhs.clone() })

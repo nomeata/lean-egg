@@ -28,11 +28,11 @@ def isAmbientLvl (lmvar : LMVarId) : EncodeM Bool := do
   return (← get).amb.lvl.contains lmvar
 
 -- Note: This only works as intended if `m` does not add any additional bvars (permanently).
-def withInstantiatedBVar (ty body : Expr) (m : String → Expr → EncodeM α) : EncodeM α := do
+def withInstantiatedBVar (ty body : Expr) (m : Expression → Expr → EncodeM α) : EncodeM α := do
   Meta.withLocalDecl .anonymous .default ty fun fvar => do
     let s ← get
     set { s with bvars := fvar.fvarId! :: s.bvars }
-    let a ← m fvar.fvarId!.name.toString (body.instantiate #[fvar])
+    let a ← m s!"#{fvar.fvarId!.uniqueIdx!}" (body.instantiate #[fvar])
     set { s with bvars := s.bvars }
     return a
 

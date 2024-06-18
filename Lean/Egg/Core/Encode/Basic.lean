@@ -12,7 +12,7 @@ namespace Egg
 open EncodeM
 
 private def encodeLevel : Level → EncodeM Expression
-  | .zero       => return "0"
+  | .zero       => return "#0"
   | .succ l     => return s!"(succ {← encodeLevel l})"
   | .max l₁ l₂  => return s!"(max {← encodeLevel l₁} {← encodeLevel l₂})"
   | .imax l₁ l₂ => return s!"(imax {← encodeLevel l₁} {← encodeLevel l₂})"
@@ -47,18 +47,18 @@ where
     | .lam _ ty b _     => encodeLambda ty b
     | .forallE _ ty b _ => encodeForall ty b
     | .lit (.strVal l)  => return s!"(lit {Json.renderString l})"
-    | .lit (.natVal l)  => return s!"(lit {l})"
+    | .lit (.natVal l)  => return s!"(lit #{l})"
     | .bvar _           => panic! "'Egg.encode.core' found loose bvar"
     | _                 => panic! "'Egg.encode.core' received non-normalized expression"
 
   encodeFVar (id : FVarId) : EncodeM Expression := do
     if ← representsBVar id
-    then return s!"(bvar {id.name.toString})"
-    else return s!"(fvar {id.uniqueIdx!})"
+    then return s!"(bvar #{id.uniqueIdx!})"
+    else return s!"(fvar #{id.uniqueIdx!})"
 
   encodeMVar (id : MVarId) : EncodeM Expression := do
     if (← isAmbientExpr id)
-    then return s!"(mvar {id.uniqueIdx!})"
+    then return s!"(mvar #{id.uniqueIdx!})"
     else return s!"?{id.uniqueIdx!}"
 
   encodeConstLvls (lvls : List Level) : EncodeM Expression :=

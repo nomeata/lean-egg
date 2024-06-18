@@ -19,9 +19,9 @@ pub struct Config {
 }
 
 pub struct RewriteTemplate {
-    pub name:  String,
-    pub lhs:   Pattern<LeanExpr>,
-    pub rhs:   Pattern<LeanExpr>,
+    pub name: String,
+    pub lhs:  Pattern<LeanExpr>,
+    pub rhs:  Pattern<LeanExpr>,
 }
 
 pub fn explain_congr(init: String, goal: String, rw_templates: Vec<RewriteTemplate>, cfg: Config, viz_path: Option<String>) -> (String, EGraph<LeanExpr>) {
@@ -32,7 +32,12 @@ pub fn explain_congr(init: String, goal: String, rw_templates: Vec<RewriteTempla
     let init_id = egraph.add_expr(init_expr);
     let goal_id = egraph.add_expr(goal_expr);
 
-    let mut rws: Vec<Rewrite<LeanExpr>> = todo!();
+    let mut rws: Vec<Rewrite<LeanExpr>> = vec![];
+    for template in rw_templates {
+        rws.push(mk_rewrite(template.lhs, template.rhs));
+    }
+
+    todo!()
     // TODO: From templates
 
     /*let mut runner = Runner::default()
