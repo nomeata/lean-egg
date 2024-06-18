@@ -24,11 +24,11 @@ pub struct RewriteTemplate {
     pub rhs:  Pattern<LeanExpr>,
 }
 
-pub fn explain_congr(init: String, goal: String, rw_templates: Vec<RewriteTemplate>, cfg: Config, viz_path: Option<String>) -> (String, EGraph<LeanExpr>) {
+pub fn explain_congr(init: String, goal: String, rw_templates: Vec<RewriteTemplate>, cfg: Config, viz_path: Option<String>) -> bool {
     let mut egraph: EGraph<LeanExpr> = EGraph::new();
 
-    let init_expr: RecExpr<LeanExpr> = todo!(); // init.parse();
-    let goal_expr: RecExpr<LeanExpr> = todo!(); // goal.parse();
+    let init_expr = Pattern::parse(init).unwrap();
+    let goal_expr = Pattern::parse(goal).unwrap();
     let init_id = egraph.add_expr(init_expr);
     let goal_id = egraph.add_expr(goal_expr);
 

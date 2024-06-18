@@ -1,9 +1,7 @@
-import Egg.Core.Request.EGraph
 import Egg.Core.Encode.Rewrites
 import Egg.Core.Encode.Guides
 import Egg.Core.Encode.Facts
 import Egg.Core.Config
-import Egg.Core.Explanation.Basic
 open Lean
 
 namespace Egg.Request
@@ -67,4 +65,4 @@ def encoding
   }
 
 @[extern "run_egg_request"]
-opaque run (req : Request) : Explanation.Raw × Option EGraph
+opaque run (req : Request) : Bool

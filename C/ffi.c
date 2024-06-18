@@ -197,7 +197,7 @@ typedef struct egg_result {
     egraph graph;
 } egg_result;
 
-extern egg_result egg_explain_congr(
+extern _Bool egg_explain_congr(
     const char* init, 
     const char* goal, 
     rws_array rws, 
@@ -217,7 +217,7 @@ structure Egg.Request where
   vizPath : String
   cfg     : Request.Config
 */
-egg_result run_egg_request_core(lean_obj_arg req) {
+_Bool run_egg_request_core(lean_obj_arg req) {
     const char* lhs      = lean_string_cstr(lean_ctor_get(req, 0));
     const char* rhs      = lean_string_cstr(lean_ctor_get(req, 1));
     rws_array rws        = rewrites_from_lean_obj(lean_ctor_get(req, 2));
@@ -226,7 +226,7 @@ egg_result run_egg_request_core(lean_obj_arg req) {
     const char* viz_path = lean_string_cstr(lean_ctor_get(req, 5));
     config cfg           = config_from_lean_obj(lean_ctor_get(req, 6));
 
-    egg_result result = egg_explain_congr(lhs, rhs, rws, facts, guides, cfg, viz_path);
+    _Bool result = egg_explain_congr(lhs, rhs, rws, facts, guides, cfg, viz_path);
     
     // TODO: Is it safe to free this?
     free_rws_array(rws);
@@ -236,24 +236,9 @@ egg_result run_egg_request_core(lean_obj_arg req) {
     return result;
 }
 
-lean_obj_res run_egg_request(lean_obj_arg req) {
-    egg_result result = run_egg_request_core(req);
-    lean_object* expl = lean_mk_string(result.expl);
-    lean_object* graph = egraph_to_lean(result.graph);
-    
-    lean_object* graph_opt;
-    if (graph == NULL) {
-        graph_opt = lean_alloc_ctor(0, 0, 0); // Option.nil
-    } else {
-        graph_opt = lean_alloc_ctor(1, 1, 0); // Option.some
-        lean_ctor_set(graph_opt, 0, graph);
-    }
-
-    lean_object* pair = lean_alloc_ctor(0, 2, 0); // Prod.mk
-    lean_ctor_set(pair, 0, expl);
-    lean_ctor_set(pair, 1, graph_opt);
-
-    return pair;
+uint8_t run_egg_request(lean_obj_arg req) {
+    _Bool result = run_egg_request_core(req);
+    return (uint8_t)result;
 }
 
 extern const char* egg_query_equiv(

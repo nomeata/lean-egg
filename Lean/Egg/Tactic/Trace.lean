@@ -1,5 +1,4 @@
 import Egg.Core.Request.Basic
-import Egg.Core.Explanation.Proof
 import Egg.Core.MVars.Ambient
 import Egg.Tactic.Premises.Parse
 import Lean
@@ -115,25 +114,6 @@ nonrec def Request.trace (req : Request) (cls : Name) : TacticM Unit := do
     withTraceNode cls (fun _ => return "Guides") do
       for guide in req.guides do
         trace cls fun _ => guide
-
-nonrec def Proof.trace (prf : Proof) (cls : Name) : TacticM Unit := do
-  withTraceNode cls (fun _ => return "Proof") do
-    for step in prf.steps, idx in [:prf.steps.size] do
-      if idx == 0 then trace cls fun _ => step.lhs
-      match step.rw with
-      | .defeq src =>
-        if src.isNatLitConversion then continue
-        withTraceNode cls (fun _ => return step.rhs) do
-          trace cls fun _ => m!"{src.description}({dirFormat step.dir})"
-      | .rw rw _ =>
-        if rw.src.containsTcProj then continue
-        withTraceNode cls (fun _ => return step.rhs) do
-          traceM cls fun _ => return m!"{rw.src.description}({dirFormat step.dir}) {← rw.toCongr.toMessageData}"
-          trace  cls fun _ => step.proof
-where
-  dirFormat : Direction → Format
-    | .forward  => "⇒"
-    | .backward => "⇐"
 
 nonrec def MVars.Ambient.trace (amb : MVars.Ambient) (cls : Name) : TacticM Unit := do
   withTraceNode cls (fun _ => return "Ambient MVars") do

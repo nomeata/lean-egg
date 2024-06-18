@@ -111,7 +111,7 @@ pub extern "C" fn egg_explain_congr(
     guides: CStringArray, 
     cfg: Config,
     viz_path_ptr: *const c_char
-) -> EggResult {
+) -> bool {
     let init   = c_str_to_string(init_str_ptr);
     let goal   = c_str_to_string(goal_str_ptr);
 
