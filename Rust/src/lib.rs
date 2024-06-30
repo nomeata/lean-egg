@@ -124,14 +124,7 @@ pub extern "C" fn egg_explain_congr(
     let raw_viz_path = String::from_utf8_lossy(viz_path_c_str.to_bytes()).to_string();
     let viz_path = if raw_viz_path.is_empty() { None } else { Some(raw_viz_path) };
 
-    let (expl, egraph) = explain_congr(init, goal, rw_templates, cfg, viz_path);
-    
-    let expl_c_str = CString::new(expl).expect("conversion of explanation to C-string failed");
-
-    return EggResult {
-        expl: expl_c_str.into_raw(),
-        graph: Some(Box::new(egraph))
-    }
+    explain_congr(init, goal, rw_templates, cfg, viz_path)
 }
 
 #[no_mangle]

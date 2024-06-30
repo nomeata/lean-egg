@@ -109,8 +109,8 @@ impl Language for LeanExpr {
             LeanExpr::MVar(c)            => ("mvar".to_string(), vec![Child::AppliedId(c)]),
             LeanExpr::Sort(c)            => ("sort".to_string(), vec![Child::AppliedId(c)]),
             LeanExpr::App(c1, c2)        => ("app".to_string(), vec![Child::AppliedId(c1), Child::AppliedId(c2)]),
-            LeanExpr::Lam(c1, c2, c3)    => ("λ".to_string(), vec![Child::Slot(c1), Child::AppliedId(c2), Child::AppliedId(c3)]),
-            LeanExpr::Forall(c1, c2, c3) => ("∀".to_string(), vec![Child::Slot(c1), Child::AppliedId(c2), Child::AppliedId(c3)]),
+            LeanExpr::Lam(c1, c2, c3)    => ("lam".to_string(), vec![Child::Slot(c1), Child::AppliedId(c2), Child::AppliedId(c3)]),
+            LeanExpr::Forall(c1, c2, c3) => ("forall".to_string(), vec![Child::Slot(c1), Child::AppliedId(c2), Child::AppliedId(c3)]),
             LeanExpr::Lit(c)             => ("lit".to_string(), vec![Child::AppliedId(c)]),
             LeanExpr::Proof(c)           => ("proof".to_string(), vec![Child::AppliedId(c)]),
             LeanExpr::Const(cs)          => {
@@ -133,8 +133,8 @@ impl Language for LeanExpr {
             ("mvar",  [Child::AppliedId(c)])                                         => Some(LeanExpr::MVar(c.clone())),            
             ("sort",  [Child::AppliedId(c)])                                         => Some(LeanExpr::Sort(c.clone())),            
             ("app",   [Child::AppliedId(c1), Child::AppliedId(c2)])                  => Some(LeanExpr::App(c1.clone(), c2.clone())),        
-            ("λ",     [Child::Slot(c1), Child::AppliedId(c2), Child::AppliedId(c3)]) => Some(LeanExpr::Lam(*c1, c2.clone(), c3.clone())),    
-            ("∀",     [Child::Slot(c1), Child::AppliedId(c2), Child::AppliedId(c3)]) => Some(LeanExpr::Forall(*c1, c2.clone(), c3.clone())), 
+            ("lam",   [Child::Slot(c1), Child::AppliedId(c2), Child::AppliedId(c3)]) => Some(LeanExpr::Lam(*c1, c2.clone(), c3.clone())),    
+            ("forall",[Child::Slot(c1), Child::AppliedId(c2), Child::AppliedId(c3)]) => Some(LeanExpr::Forall(*c1, c2.clone(), c3.clone())), 
             ("lit",   [Child::AppliedId(c)])                                         => Some(LeanExpr::Lit(c.clone())),             
             ("proof", [Child::AppliedId(c)])                                         => Some(LeanExpr::Proof(c.clone())),     
             ("const", cs) => {
@@ -158,7 +158,7 @@ impl Language for LeanExpr {
                     None
                 }
             },
-            _ => None
+            (op, cs) => panic!("Failed to parse ctor {} with {} children", op, cs.len())
         }
     }
 }

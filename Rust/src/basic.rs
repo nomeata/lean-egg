@@ -1,3 +1,5 @@
+use std::time::Instant;
+
 use miniegg_with_slots::*;
 use crate::lean_expr::*;
 
@@ -27,8 +29,8 @@ pub struct RewriteTemplate {
 pub fn explain_congr(init: String, goal: String, rw_templates: Vec<RewriteTemplate>, cfg: Config, viz_path: Option<String>) -> bool {
     let mut egraph: EGraph<LeanExpr> = EGraph::new();
 
-    let init_expr = Pattern::parse(init).unwrap();
-    let goal_expr = Pattern::parse(goal).unwrap();
+    let init_expr = RecExpr::parse(&init).unwrap();
+    let goal_expr = RecExpr::parse(&goal).unwrap();
     let init_id = egraph.add_expr(init_expr);
     let goal_id = egraph.add_expr(goal_expr);
 
@@ -37,32 +39,10 @@ pub fn explain_congr(init: String, goal: String, rw_templates: Vec<RewriteTempla
         rws.push(mk_rewrite(template.lhs, template.rhs));
     }
 
-    todo!()
-    // TODO: From templates
-
-    /*let mut runner = Runner::default()
-        .with_egraph(egraph)
-        .with_time_limit(Duration::from_secs(cfg.time_limit.try_into().unwrap()))
-        .with_node_limit(cfg.node_limit)
-        .with_iter_limit(cfg.iter_limit)
-        .with_hook(move |runner| {
-            if let Some(path) = &viz_path {
-                runner.egraph.dot().to_dot(format!("{}/{}.dot", path, runner.iterations.len())).unwrap();
-            }
-            if runner.egraph.find(init_id) == runner.egraph.find(goal_id) {
-                Err("search complete".to_string())
-            } else {
-                Ok(())
-            }
-        })
-        .run(&rws);
-
-    if runner.egraph.find(init_id) == runner.egraph.find(goal_id) {
-        let mut expl = runner.explain_equivalence(&init_expr, &goal_expr);
-        let expl_str = expl.get_flat_string();
-        Ok((expl_str, runner.egraph))
-    } else {
-        Err(Error::Stopped(runner.stop_reason.unwrap()))
+    let start_time = Instant::now();
+    while start_time.elapsed().as_secs() < cfg.time_limit.try_into().unwrap() {
+        do_rewrites(&mut egraph, &rws);
+        if egraph.find_applied_id(&init_id) == egraph.find_applied_id(&goal_id) { return true }
     }
-    */
+    return false
 }

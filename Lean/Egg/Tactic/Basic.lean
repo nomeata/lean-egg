@@ -40,7 +40,7 @@ private def collectAmbientMVars (goal : Goal) (guides : Guides) : MetaM MVars.Am
 
 open Config.Modifier (egg_cfg_mod)
 
-private axiom egg {α : Prop} : α
+private axiom egg (α : Prop) : α
 
 protected def eval
     (mod : TSyntax ``egg_cfg_mod) (prems : TSyntax `egg_premises)
@@ -64,7 +64,7 @@ protected def eval
       if let .beforeEqSat := cfg.exitPoint then return none
       let success := req.run
       if success
-      then return some <| ← mkAppM ``egg #[(← goal.type)]
+      then return some <| ← mkAppM ``egg #[(← goal.expr)]
       else throwError "egg failed to prove the goal"
     if let some proof := proof?
     then goal.id.assignIfDefeq' proof

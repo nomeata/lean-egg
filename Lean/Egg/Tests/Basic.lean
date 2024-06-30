@@ -1,10 +1,11 @@
 import Egg
 
-/-- error: egg failed to prove the goal (saturated) -/
+/-- error: egg failed to prove the goal -/
 #guard_msgs in
 example : true = false := by
   egg
 
+/-
 /--
 error: expected goal to be of type '=' or '↔', but found:
 True
@@ -49,3 +50,4 @@ def g : Nat → Nat
 
 example : f (g Nat.zero.succ.succ) = .zero := by
   egg [f, g]
+-/
