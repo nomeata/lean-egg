@@ -40,9 +40,17 @@ pub fn explain_congr(init: String, goal: String, rw_templates: Vec<RewriteTempla
     }
 
     let start_time = Instant::now();
+    let mut node_count = egraph.total_size();
     while start_time.elapsed().as_secs() < cfg.time_limit.try_into().unwrap() {
         do_rewrites(&mut egraph, &rws);
-        if egraph.find_applied_id(&init_id) == egraph.find_applied_id(&goal_id) { return true }
+        let new_count = egraph.total_size();
+        if egraph.find_applied_id(&init_id) == egraph.find_applied_id(&goal_id) { 
+            return true 
+        } else if new_count == node_count {
+            return false
+        }
+        node_count = new_count;
+
     }
     return false
 }

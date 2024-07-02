@@ -148,8 +148,7 @@ impl Language for LeanExpr {
                 Some(LeanExpr::Const(is.into_boxed_slice()))
             },
             (op, []) => {
-                if op.starts_with("#") {
-                    let n: u64 = op[1..].parse().ok()?;
+                if let Ok(n) = op.parse::<u64>() {
                     Some(LeanExpr::Nat(n))
                 } else if op.starts_with("\"") && op.ends_with("\"") {
                     let s = op.strip_prefix("\"").unwrap().strip_suffix("\"").unwrap().to_string();

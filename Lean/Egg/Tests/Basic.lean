@@ -5,7 +5,6 @@ import Egg
 example : true = false := by
   egg
 
-/-
 /--
 error: expected goal to be of type '=' or '↔', but found:
 True
@@ -50,4 +49,3 @@ def g : Nat → Nat
 
 example : f (g Nat.zero.succ.succ) = .zero := by
   egg [f, g]
--/
